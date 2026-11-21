@@ -1,0 +1,28 @@
+{
+  "name": "crocanti-backend",
+  "version": "1.0.0",
+  "description": "API REST para Crocanti Chicken con Neon PostgreSQL",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test",
+    "hashear-claves": "node scripts/hashear_claves.js",
+    "probar-sync": "node scripts/probar_sync.js",
+    "crear-roles": "node scripts/crear_roles_demo.js",
+    "seed-catalogo": "node scripts/seed_catalogo.js",
+    "aplicar-sql": "node scripts/aplicar_sql.js",
+    "entrenar-eta": "python ml/entrenar_eta.py",
+    "exportar-datos-eta": "node ml/exportar_datos_reales.js",
+    "exportar-powerbi": "node scripts/exportar_powerbi.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1160.0",
+    "@aws-sdk/s3-request-presigner": "^3.1160.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.11.3"
+  }
+}
