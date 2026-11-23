@@ -280,7 +280,11 @@ function crearApp(pool, opciones = {}) {
     app.get('/api/health', async (req, res) => {
         try {
             await pool.query('SELECT 1');
-            res.json({ ok: true, servicio: 'crocanti-api' });
+            res.json({
+                ok: true,
+                servicio: 'crocanti-api',
+                almacenamiento: almacenamientoConfigurado() ? 's3' : 'local'
+            });
         } catch (err) {
             res.status(503).json({ ok: false, error: 'Base de datos no disponible' });
         }
