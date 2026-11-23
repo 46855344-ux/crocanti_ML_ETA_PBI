@@ -4,6 +4,7 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const { crearApp } = require('./app');
+const { estaConfigurado: almacenamientoConfigurado } = require('./almacenamiento');
 
 // ============================================================
 // CONEXIÓN A NEON (PostgreSQL)
@@ -30,6 +31,15 @@ pool.connect((err, client, release) => {
 });
 
 const app = crearApp(pool);
+
+if (almacenamientoConfigurado()) {
+    console.log('✅ Object Storage configurado: las fotos de entrega se guardarán en S3.');
+} else {
+    console.warn(
+        '⚠️  Object Storage no configurado (falta S3_BUCKET o AWS_*): ' +
+        'las fotos se guardarán en uploads/ y se perderán al reiniciar Render.'
+    );
+}
 
 const PORT = process.env.PORT || 3000;
 // Sin host explicito Node escucha en '::' (dual-stack IPv4/IPv6),

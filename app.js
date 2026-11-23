@@ -7,6 +7,10 @@ const crypto = require('crypto');
 const { crearServicioSync, normalizarProducto, normalizarPromocion } = require('./sync');
 const { predecirEta, obtenerMetricasEta } = require('./ml/eta_model');
 const {
+    estaConfigurado: almacenamientoConfigurado,
+    subirFoto
+} = require('./almacenamiento');
+const {
     hashearClave,
     verificarClave,
     esHashBcrypt,
@@ -1465,6 +1469,8 @@ function crearApp(pool, opciones = {}) {
             let urlFinal = typeof fotoUrl === 'string' ? fotoUrl.trim() : '';
 
             if (!urlFinal && typeof fotoBase64 === 'string' && fotoBase64.trim() !== '') {
+                const coincidencia = /^data:([^;]+);base64,/i.exec(fotoBase64.trim());
+                const contentType = coincidencia ? coincidencia[1] : 'image/jpeg';
                 const limpio = fotoBase64.includes(',')
                     ? fotoBase64.split(',').pop()
                     : fotoBase64;
@@ -1475,9 +1481,32 @@ function crearApp(pool, opciones = {}) {
                 if (buffer.length > 6 * 1024 * 1024) {
                     return res.status(413).json({ error: 'La foto supera 6 MB' });
                 }
-                const nombre = `entrega-${id}-${Date.now()}.jpg`;
-                fs.writeFileSync(path.join(UPLOADS_DIR, nombre), buffer);
-                urlFinal = `/uploads/${nombre}`;
+
+                // Primero se intenta Object Storage (Neon S3). Si falla o no
+                // está configurado, se conserva el respaldo local para que la
+                // entrega no se pierda en el momento.
+                let subida = null;
+                if (almacenamientoConfigurado()) {
+                    try {
+                        subida = await subirFoto(buffer, id, contentType);
+                    } catch (error) {
+                        console.warn(
+                            'No se pudo subir la foto a Object Storage; se guarda localmente:',
+                            error.message
+                        );
+                    }
+                }
+
+                if (subida) {
+                    urlFinal = subida.url;
+                } else {
+                    const extension = /png/i.test(contentType)
+                        ? 'png'
+                        : (/webp/i.test(contentType) ? 'webp' : 'jpg');
+                    const nombre = `entrega-${id}-${Date.now()}.${extension}`;
+                    fs.writeFileSync(path.join(UPLOADS_DIR, nombre), buffer);
+                    urlFinal = `/uploads/${nombre}`;
+                }
             }
 
             if (!urlFinal) {

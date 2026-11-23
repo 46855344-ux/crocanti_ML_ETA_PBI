@@ -13,7 +13,8 @@
     "aplicar-sql": "node scripts/aplicar_sql.js",
     "entrenar-eta": "python ml/entrenar_eta.py",
     "exportar-datos-eta": "node ml/exportar_datos_reales.js",
-    "exportar-powerbi": "node scripts/exportar_powerbi.js"
+    "exportar-powerbi": "node scripts/exportar_powerbi.js",
+    "probar-s3": "node scripts/probar_s3.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1160.0",
