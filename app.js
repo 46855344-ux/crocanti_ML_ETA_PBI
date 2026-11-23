@@ -1502,6 +1502,9 @@ function crearApp(pool, opciones = {}) {
                 }
 
                 if (subida) {
+                    console.log(
+                        `✅ Foto de entrega ${id} subida a Object Storage: ${subida.key}`
+                    );
                     urlFinal = subida.url;
                 } else {
                     const extension = /png/i.test(contentType)
